@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <title> cha - design </title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>cha·design</title>
+
+        <style>
+            html {
+                 margin:0;
+                padding:0;
+                height:100%;
+                background:rgba(30,20,49,1);
+            }
+
+            body{
+                margin:0 auto;
+                padding:0;
+                height:100%;
+               
+                background: radial-gradient(ellipse at center, rgba(235,233,249,0.2) 0%, rgba(216,208,239,0.34) 28%, rgba(193,191,234,0.26) 63%, rgba(193,191,234,0.17) 99%, rgba(193,191,234,0.17) 100%);  
+               /* background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(236,232,247,1) 30%, rgba(225,221,243,1) 58%, rgba(236,232,247,1) 95%, rgba(236,232,247,1) 100%);
+                background:rgba(30,60,40,18);
+                */
+                
+            }
+            #container{
+                height:100%;
+                display:flex;
+                /* centra horizontalmente */
+                justify-content: center;
+                /* centra vertical: */
+                align-items:center;
+
+
+            }
+
+            #vcard{
+                z-index:12 !important;
+                align-self:auto;
+                width:80%;
+                height:72%;
+               
+
+                padding:2em;
+              background:rgba(20,19,21,0.6);
+              /*   box-shadow:
+                  0 4px 8px 0 rgba(0, 0, 0, 0.2),
+                  0 6px 20px 0 rgba(0, 0, 0, 0.2),
+                  1px 1px 60px  20px rgba(250,250,250,0.3) inset,
+                   -1px -1px 60px  20px rgba(250,250,250,0.3) inset; 
+                  */
+                text-align: center;
+
+            }
+
+            .centeredv{
+              z-index:2;
+              position:absolute;
+              display:block;
+              left:calc(50%-12vw);
+              top:calc(50%-100px);
+              align-self:auto;
+              width:80%;
+              height:60%;
+               
+
+                padding:2em;
+                background:rgba(20,19,21,0.8);
+              /*  box-shadow:
+                  0 4px 8px 0 rgba(0, 0, 0, 0.2),
+                  0 6px 20px 0 rgba(0, 0, 0, 0.2),
+                  1px 1px 60px  20px rgba(250,250,250,0.3) inset,
+                   -1px -1px 60px  20px rgba(250,250,250,0.3) inset; 
+                   */
+                text-align: justify;
+            }
+
+
+
+            .hidden{display:none}
+            h1{ margin:0;padding:0;  font-family:Georgia, 'Times New Roman', Times, serif ; font-size:12wh;line-height:10wh;color:rgba(216,208,239,0.94) }
+            h2{ font-family:monospace; font-size:8wh; color:rgba(193,191,234,0.77);line-height:7wh}
+
+           .blurry{filter:blur(20px)}
+            
+        </style>
+</head>
+
+<body>
+<a href="dark" > O </a>
+    <div id='container'>
+    
+    <div id="vcard" class="centered_ ">
+            <div id="hcard-cha-design" class="vcard">
+                <h1> cha·design</h1>
+                <h2> diseño y realización de soluciones creativas</h2>
+                <ul id="menu" class="">
+                  <li>soluciones digitales</li>
+                  <li>metodologia y nicho</li>
+                  <li>projectos y ejemplos</li>
+                </ul>
+                <div id="footer">
+
+                    <a href="contact">M</a>
+                    <a href="redes">RR</a>
+                    <a href="bio">bio</a> 
+
+                </div>
+            <div>
+                  <span class="category">diseñador</span>, <span class="category">ingeniero</span>
+              </div>
+            </div>
+    </div>
+
+    <div id="back" class="centeredv blurry">
+    </div>
+
+
+
+
+
+</body>
+
+
+
+<script type="text/javascript">
+
+
+</script> 
+
+
+</html>
