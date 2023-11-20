@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<title>Globe UP!</title>
+
+        <style>
+@media only screen and (orientation:portrait){
+      html {
+                /*background-color: #faf;*/
+                margin:0;
+                padding:0;
+                height:100%;
+            }
+
+        body {
+          height: 100vw;
+          transform: rotate(90deg) !important; 
+         margin:0;
+          padding:0;
+       }
+     }
+            html {
+                /*background-color: #faf;*/
+                margin:0;
+                padding:0;
+                height:100%;
+            }
+
+            body{
+                margin:0;
+                padding:0;
+                
+            }
+
+            #canvas{
+                margin:0;
+                padding:0;
+                width:100%;
+                height:100%;
+            }
+
+        </style>
+</head>
+
+<body>
+
+</body>
+<!--
+<script type="text/javascript" src="cordova.js"></script>
+-->
+<script src='./Player.js'> </script>
+<script src='./Events.js'> </script>
+<script src='./Stage.js'> </script>
+<script src='./Sprite.js'> </script>
+<script src='./Loader.js'> </script>
+<script type="text/javascript">
+/* GLOBE UP 2 -> REFACTORING GLOBE UP 
+
+  estandarización de eventos , todo: inside class events set PRESS as this.PRESS as Events var , not as window var.
+
+  + set window.onresize ( update(stage))
+    
+  + set lockorientation
+
+  crear una maquina de estados, que pueda variar entre el main loop
+  game, funciones asincronas, y funciones sincronas.
+    
+    - if(pantalla=='inicio') { update(); }
+
+    -para esto las funciones sincronas funcionaran como lo habitual.
+    -para las asincronas las funciones esperaran un evento disparado si estan en bucle.
+
+  por ejemplo:
+
+    GAME STATE LOAD =
+
+    function load(){
+    
+      loadjson.then(loadData).then(switchGameState(GAME_STATE_TITLE));
+  
+    }
+    --> CREADO LOADER 4 sprites 
+
+
+*/
+function fullScreen() {
+  // Kind of painful, but this is how it works for now
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen();
+  } else if (document.documentElement.mozRequestFullScreen) {
+    document.documentElement.mozRequestFullScreen();
+  } else if (document.documentElement.webkitRequestFullscreen) {
+    document.documentElement.webkitRequestFullscreen();
+  } else if (document.documentElement.msRequestFullscreen) {
+    document.documentElement.msRequestFullscreen();
+  }
+}
+
+
+//lock()
+function lock(orientation="landscape") {
+ // fullScreen();
+  //screen.orientation.lock("landscape");
+}
+
+const GAME_STATE_RESET = 0
+const GAME_STATE_INTRO = 1;
+const GAME_STATE_LOAD_GAME = 2;
+const GAME_STATE_NEW_GAME = 3;
+const GAME_STATE_PLAY = 4;
+const GAME_STATE_GAME_OVER = 5;
+
+
+  var canvas_width = window.innerWidth;
+  var canvas_height = window.innerHeight;
+
+  //valores iniciales para reset
+  var stage  = new Stage();
+ // var ctx = stage.getCtx();
+  var canvas = document.getElementById("stage_canvas");
+  var ctx = canvas.getContext('2d');
+
+ // var ctxb = stage.ctxb;
+
+  var PLAYER_LOAD = false;
+  var BACK_LOAD = false;
+  //EVENTS
+  var PRESS = false;
+  var eventos = new Events();
+
+  //WORLD
+  var terrain;
+  //var player
+  var player;
+
+  var interval_game;
+  var interval;
+  var pixel;
+  //SPRITES
+  //var json_intro = {" elements" : { "back" : { "url" : 'back_splash.jpg' , "pos" : [x,y] , "dim" : [w,h]}}};
+  var url_sprites_intro = ['back_splash.jpg','title.png','up.png'];
+  var url_sprites_player = ['globe.gif','globe1.gif','globe2.gif'];
+  var url_sprites_back = ['back_cueva.jpg','back_bw.gif'];
+  var sprites_player;
+  var sprites_back;
+
+  var promise_sprites_intro = aload(url_sprites_intro);
+  // function loadGame(){  promise_sprites_intro.then(switchgamestate); }
+  promise_sprites_intro.then(createIntro);
+
+  var promises_sprites_back = aload(url_sprites_back);
+  var promises_sprites_player = aload(url_sprites_player);
+  //var loader = new Loader(url_sprites_intro);
+  //addEventListener('LOADED',createIntro,true); //loader.onLoad = createIntro();
+
+  promises_sprites_back.then(sprites => {
+        sprites_back = sprites;
+        var back = new Sprite(sprites[0],0,0,1,1);
+        var terrain = new Sprite(sprites[1],0,0,1,1)
+        stage.addBack(sprites[0]);
+       // stage.addTerrainb(sprites[1]);
+        BACK_LOAD = true;
+      });;
+
+  promises_sprites_player.then(sprites => {
+        sprites_player = sprites;
+         player = new Player();
+         player.setSprite(sprites[0]);
+         player.setAnim(sprites);
+         PLAYER_LOAD = true;
+      });
+    
+
+  //draw SPLASH INTRO
+  function createIntro(vals)
+  {
+   
+    var sprites_intro = vals;
+
+    var back = new Sprite(sprites_intro[0],0,0,1,1);
+    var logo = new Sprite(sprites_intro[1],0.221,0.535,0.481,1);
+    
+    stage.addElem(back);
+    stage.addElem(logo);
+
+    stage.drawe();
+
+    init();
+
+  }
+
+  function gameStateIntro()
+  {
+    if (PRESS) { switchGameState(GAME_STATE_LOAD_GAME); }
+  }
+
+  //aunq esta precargandonse desde antes de init, lo ideal, seria que hasta que no este cargado no este disponible evento press en lal pantalla de inicio.
+  function gameStateLoad()
+  {
+   if (( PLAYER_LOAD == true ) && ( BACK_LOAD == true))
+   {
+      switchGameState(GAME_STATE_PLAY);
+    }
+  }
+
+  function gameStateReset()
+  {
+    player.reset();
+    stage.reset();
+    switchGameState(GAME_STATE_PLAY);
+  }
+
+  function gameStatePlay()
+  {
+        stage.update();
+        player.update();
+        //var x = stage.getX() ; // * RATIO INVERSO
+        
+      if ( checkCollision() ) {  switchGameState(GAME_STATE_GAME_OVER);}
+  }
+
+  function gameStateOver()
+  {
+    console.log("GAME OVER");
+    // if (PRESS) { switchGameState(GAME_STATE_RESET); }
+  }
+
+  function checkCollision()
+  {
+    //console.log(stage.ctxb);
+ // * RATIO INVERSO
+    var y = player.getY() ;
+       player.drawp(36,y,[255,255,255]);
+    pixel = ctx.getImageData(51, y, 1, 1).data;
+          //pixel[0] 
+          //player.drawp(x+40,y+92,pixel);
+      
+          //console.log("P",y,pixel);
+          if (pixel[0] > 150 ) { //si es (7)negro true = colision
+            return true;
+          }else{          
+              return false;
+          }   
+          
+          
+  }
+  //state machine
+  /*
+  const GAME_STATE_RESET = 0
+  const GAME_STATE_INTRO = 1;
+  const GAME_STATE_LOAD_GAME = 2;
+  const GAME_STATE_NEW_GAME = 3;
+  const GAME_STATE_GAME_OVER = 4;
+  */
+  function switchGameState(newState)
+  {
+    currentGameState = newState;
+    switch (currentGameState){
+      case GAME_STATE_RESET : 
+        currentGameStateFunction = gameStateReset;
+        break;
+      case GAME_STATE_INTRO :
+        currentGameStateFunction = gameStateIntro;
+        break;
+      case GAME_STATE_LOAD_GAME : 
+        currentGameStateFunction = gameStateLoad;
+        break;
+      case GAME_STATE_NEW_GAME :
+        currentGameStateFunction = gameStateNewGame;
+        break;
+      case GAME_STATE_PLAY :
+        currentGameStateFunction = gameStatePlay;
+        break;
+      case GAME_STATE_GAME_OVER :
+        currentGameStateFunction = gameStateOver;
+        break;
+      }
+  }
+
+
+function runGame(){
+  var time = Date.now() * 0.00025;
+   
+  currentGameStateFunction();
+   
+  var delta =  Date.now() * 0.00025 - time;
+  console.log(delta);
+  interval = window.requestAnimationFrame(runGame);
+
+}
+
+function init()
+{
+  switchGameState(GAME_STATE_INTRO);
+  runGame();
+}
+
+</script> 
+</head>
+
+</html>
